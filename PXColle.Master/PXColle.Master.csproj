@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiteDB" Version="5.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PXColle.Action.Manager\PXColle.Action.Manager.csproj" />
+    <ProjectReference Include="..\PXColle.Trigger.Manager\PXColle.Trigger.Manager.csproj" />
+  </ItemGroup>
+
+</Project>

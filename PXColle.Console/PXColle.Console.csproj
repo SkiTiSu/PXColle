@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>PXColle.Con</AssemblyName>
+    <RootNamespace>PXColle.Con</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CodeHollow.FeedReader" Version="1.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PXColle.Action.Snapshot\PXColle.Action.Snapshot.csproj" />
+    <ProjectReference Include="..\PXColle.Action.YouGet\PXColle.Action.YouGet.csproj" />
+    <ProjectReference Include="..\PXColle.Common\PXColle.Common.csproj" />
+    <ProjectReference Include="..\PXColle.Master\PXColle.Master.csproj" />
+    <ProjectReference Include="..\PXColle.Trigger.Manager\PXColle.Trigger.Manager.csproj" />
+    <ProjectReference Include="..\PXColle.Trigger.RSS\PXColle.Trigger.RSS.csproj" />
+  </ItemGroup>
+
+</Project>

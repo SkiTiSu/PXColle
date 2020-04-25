@@ -1,0 +1,72 @@
+﻿@page  "/trigger/"
+@using PXColle.Trigger;
+@inject MasterHelper master;
+
+<h2>触发器管理</h2>
+<NavLink class="nav-link" href="trigger/new/rss">新建RSS订阅</NavLink>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>名称</td>
+            <td>状态</td>
+            <td>Key</td>
+            <td>创建时间</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in triggerContexts)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Status</td>
+                <td>@item.Key</td>
+                <td>@item.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss")</td>
+                <td>
+                    @if (item.Status == PXTriggerStatus.Running)
+                    {
+                        <button class="btn btn-outline-warning" @onclick="(() => Pause(item.Id))">暂停</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-success" @onclick="(() => Start(item.Id))">启动</button>
+                    }
+                    <button class="btn btn-outline-danger" @onclick="(() => Remove(item.Id))">删除</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    IEnumerable<PXTriggerContext> triggerContexts;
+
+    void Start(string id)
+    {
+        master.Master.TriggerM.Start(id);
+        Refresh();
+    }
+
+    void Pause(string id)
+    {
+        master.Master.TriggerM.Stop(id);
+        Refresh();
+    }
+
+    void Remove(string id)
+    {
+        master.Master.TriggerM.Remove(id);
+        Refresh();
+    }
+
+    void Refresh()
+    {
+        triggerContexts = master.Master.TriggerM.List();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Refresh();
+    }
+}

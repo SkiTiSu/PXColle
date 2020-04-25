@@ -1,0 +1,81 @@
+﻿@page "/trigger/new/{Key}"
+@using PXColle.Trigger
+@using System.Text.RegularExpressions
+@inject MasterHelper master
+@inject NavigationManager NavigationManager
+
+<h2>新建触发器</h2>
+
+@if (ConfigItems == null)
+{
+    <span>Key错误，请检查后重试</span>
+}
+else
+{
+<form @onsubmit="HandleSubmit">
+    <div class="form-group">
+        <label>名称</label>
+        <input type="text" class="form-control" @bind="name" />
+    </div>
+        @foreach (var item in ConfigItems)
+        {
+            <div class="form-group">
+                <label>@item.Name @(item.Required ? "*" : null)</label>
+                @switch (item.Type)
+                {
+                    case "string":
+                        <input type="text" class="form-control @(!validEnable ? null : !item.IsValid ? "is-invalid" : "is-valid")" @bind="item.Value" placeholder="@item.Description" />
+                        break;
+                    case "bool":
+                        <input type="checkbox" @bind="item.ValueBool" />
+                        break;
+                }
+                @if (validEnable && !item.IsValid)
+                {
+                    <div class="invalid-feedback">
+                        @item.ErrorMessage
+                    </div>
+                }
+            </div>
+        }
+        <button type="submit" class="btn btn-primary">新建</button>
+</form>
+}
+
+
+@code {
+    [Parameter]
+    public string Key { get; set; }
+
+    public IEnumerable<PXConfigItem> ConfigItems { get; set; }
+    private string name;
+
+    private bool validEnable = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ConfigItems = master.Master.TriggerM.GetTriggerConfig(Key);
+    }
+
+    private void HandleSubmit()
+    {
+        validEnable = true;
+        bool isAllValid = true;
+        foreach (var item in ConfigItems)
+        {
+            if (!item.IsValid) isAllValid = false;
+        }
+        if (isAllValid)
+        {
+            PXTriggerContext context = new PXTriggerContext()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = name,
+                Key = this.Key,
+                Config = ConfigItems.ToDictionary(x => x.Key, x => x.Value)
+            };
+            master.Master.AddTrigger(context);
+            NavigationManager.NavigateTo("trigger");
+        }
+    }
+}
