@@ -52,6 +52,12 @@ namespace PXColle.Master
             colAction.EnsureIndex(x => x.UpdatedAt);
         }
 
+        public PXActionContext GetAction(string id)
+        {
+            return colAction.FindOne(x => x.Id == id);
+            
+        }
+
         public IEnumerable<PXActionContext> GetActions()
         {
             IEnumerable<PXActionContext> resrunning = colAction

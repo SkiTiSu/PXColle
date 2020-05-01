@@ -18,21 +18,23 @@ else
                 <td>处理程序</td>
                 <td>状态</td>
                 <td>描述</td>
-                <td>地址</td>
                 <td>最后更新时间</td>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in contextsRunning)
             {
-                <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Key</td>
-                    <td>@item.Status</td>
-                    <td>@item.StatusDesc</td>
-                    <td>@item.Url</td>
-                    <td>@item.UpdatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss")</td>
-                </tr>
+            <tr>
+                <td>
+                    @item.Name
+                    <br />
+                    @item.Url
+                </td>
+                <td>@item.Key</td>
+                <td>@item.Status</td>
+                <td>@item.StatusDesc</td>
+                <td>@item.UpdatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss")</td>
+            </tr>
             }
         </tbody>
     </table>
@@ -53,7 +55,6 @@ else
                 <td>处理程序</td>
                 <td>状态</td>
                 <td>描述</td>
-                <td>地址</td>
                 <td>最后更新时间</td>
             </tr>
         </thead>
@@ -61,11 +62,14 @@ else
             @foreach (var item in contextsPending)
             {
             <tr>
-                <td>@item.Name</td>
+                <td>
+                    @item.Name
+                    <br />
+                    @item.Url
+                </td>
                 <td>@item.Key</td>
                 <td>@item.Status</td>
                 <td>@item.StatusDesc</td>
-                <td>@item.Url</td>
                 <td>@item.UpdatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss")</td>
             </tr>
             }
@@ -88,7 +92,6 @@ else
                 <td>处理程序</td>
                 <td>状态</td>
                 <td>描述</td>
-                <td>地址</td>
                 <td>最后更新时间</td>
                 <td>操作</td>
             </tr>
@@ -97,13 +100,21 @@ else
             @foreach (var item in contextsOther)
             {
             <tr>
-                <td>@item.Name</td>
+                <td>
+                    @item.Name
+                    <br />
+                    @item.Url
+                </td>
                 <td>@item.Key</td>
                 <td>@item.Status</td>
                 <td>@item.StatusDesc</td>
-                <td>@item.Url</td>
                 <td>@item.UpdatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss")</td>
-                <td><button class="btn btn-outline-success" @onclick="(() => Retry(item.Id))">重试</button></td>
+                <td>
+                    @if (item.Status == PXActionStatus.Error)
+                    {
+                        <button class="btn btn-outline-success" @onclick="(() => Retry(item.Id))">重试</button>
+                    }
+                </td>
             </tr>
             }
         </tbody>

@@ -28,6 +28,7 @@ namespace PXColle.Action
 
         protected void ChangeStatus(PXActionStatus status, string desc = "")
         {
+            Console.WriteLine(desc);
             Status = status;
             StatusDesc = desc;
             context.Status = status;

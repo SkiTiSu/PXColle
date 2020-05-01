@@ -34,6 +34,7 @@ namespace PXColle.Master
             {
                 Console.WriteLine("RESUME!!!");
                 TriggerM.Resume(contexts);
+                //TODO: Actions with running status should be set to Error
             }
 
             List<PXPolicy> policies = new List<PXPolicy>
@@ -123,7 +124,8 @@ namespace PXColle.Master
 
         public void RetryAction(string id)
         {
-
+            var context = Storage.GetAction(id);
+            ActionM.AddAndStart(context);
         }
 
         public string RemoveInvalidChars(string filename)
