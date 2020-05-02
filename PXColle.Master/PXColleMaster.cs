@@ -76,6 +76,11 @@ namespace PXColle.Master
             return Storage.GetActions();
         }
 
+        public IEnumerable<PXManagedFile> GetPXFiles(int size = 10, int index = 0)
+        {
+            return Storage.GetPXFiles(size, index);
+        }
+
         private void TriggerM_ContextsChanged(object sender, EventArgs e)
         {
             Save();

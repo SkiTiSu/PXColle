@@ -1,13 +1,46 @@
 ﻿@page "/file"
+@using PXColle.Master 
+@inject MasterHelper master
 
-<InputText @bind-Value="searchText" /><button @onclick="Search">搜索</button>
+@*<InputText @bind-Value="searchText" />
+<button @onclick="Search">搜索</button>*@
 
+<table class="table">
+    <thead>
+        <tr>
+            <td>名称</td>
+            <td>创建时间</td>
+            <td>大小</td>
+            <td>路径</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in files)
+        {
+            <tr>
+                <td>
+                    @item.Name
+                </td>
+                <td>@item.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss")</td>
+                <td>@(item.Length/1024) KB</td>
+                <td>@item.Path</td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 @code {
     string searchText;
 
+    IEnumerable<PXManagedFile> files;
+
     void Search()
     {
 
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        files = master.Master.GetPXFiles();
     }
 }

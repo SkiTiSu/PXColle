@@ -54,9 +54,8 @@ namespace PXColle.Action.YouGet
                 process.WaitForExit(milliseconds); //TODO: Task.Run
                 process.Close();
 
-
-
                 //TODO: 有一定几率Error信息在正常信息之前打印，导致误判是正常退出，考虑使用process.ExitCode
+                //已在普通输出时初步处理
                 if (Status != PXActionStatus.Error)
                 {
                     ChangeStatus(PXActionStatus.Finished, "Done.");
@@ -92,7 +91,10 @@ namespace PXColle.Action.YouGet
                 if (res.Success)
                 {
                     ProgressPercent = float.Parse(res.Value);
-                    ChangeStatus(PXActionStatus.Running, $"Downloading... {ProgressPercent}%");
+                    if (context.Status != PXActionStatus.Error)
+                    {
+                        ChangeStatus(PXActionStatus.Running, $"Downloading... {ProgressPercent}%");
+                    }
                 }
             }
         }

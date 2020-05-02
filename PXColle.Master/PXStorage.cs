@@ -25,9 +25,7 @@ namespace PXColle.Master
         const string DatabaseFileName = "Database";
         ILocalStorage Database;
 
-        LiteDatabase db;
-        ILiteCollection<PXActionContext> colAction;
-        ILiteCollection<PXManagedFile> colPXFile;
+        string DbConnectionString { get => Path.Combine(WorkingPath, configFolderName, DatabaseFileName + ".db"); }
 
         public PXStorage(string configFile = null)
         {
@@ -41,39 +39,62 @@ namespace PXColle.Master
             }
 
             localStorage = new LocalStorageRealFile(ConfigPath);
+
         }
 
         public void SetAction(PXActionContext context)
         {
-            colAction.Upsert(context);
-            colAction.EnsureIndex(x => x.Id, true);
-            colAction.EnsureIndex(x => x.Status);
-            //colAction.EnsureIndex(x => x.CreatedAt);
-            colAction.EnsureIndex(x => x.UpdatedAt);
+            using var db = new PXDbContext(DbConnectionString);
+            db.Actions.Upsert(context);
         }
 
         public PXActionContext GetAction(string id)
         {
-            return colAction.FindOne(x => x.Id == id);
-            
+            using var db = new PXDbContext(DbConnectionString);
+            return db.Actions.FindOne(x => x.Id == id);
+        }
+
+        public void ActionsToErrorTest()
+        {
+            using var db = new PXDbContext(DbConnectionString);
+            IEnumerable<PXActionContext> resrunning = db.Actions
+                .Find(x => x.Status == PXActionStatus.Running)
+                .ToArray();
+            foreach (var res in resrunning)
+            {
+                res.Status = PXActionStatus.Error;
+                res.StatusDesc = "Exited during running.";
+            }
+            db.Actions.Update(resrunning);
         }
 
         public IEnumerable<PXActionContext> GetActions()
         {
-            IEnumerable<PXActionContext> resrunning = colAction
+            using var db = new PXDbContext(DbConnectionString);
+            IEnumerable<PXActionContext> resrunning = db.Actions
                 .Find(x => x.Status == PXActionStatus.Running || x.Status == PXActionStatus.Pending);
-            IEnumerable<PXActionContext> resrecent = colAction.Query()
+            IEnumerable<PXActionContext> resrecent = db.Actions.Query()
                 .Where(x => x.Status != PXActionStatus.Running && x.Status != PXActionStatus.Pending)
                 .OrderByDescending(x => x.UpdatedAt)
                 .Limit(30)
                 .ToEnumerable();
-            return resrunning.Concat(resrecent);
+             return resrunning.Concat(resrecent).ToArray();
         }
 
         public void SetPXFile(PXManagedFile file)
         {
-            colPXFile.Upsert(file);
-            colPXFile.EnsureIndex(x => x.MD5, true);
+            using var db = new PXDbContext(DbConnectionString);
+            db.PXFiles.Upsert(file);
+        }
+
+        public IEnumerable<PXManagedFile> GetPXFiles(int size = 10, int index = 0)
+        {
+            using var db = new PXDbContext(DbConnectionString);
+            return db.PXFiles.Query()
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip(size * index)
+                .Limit(size)
+                .ToArray();
         }
 
         public void SetWorkingPath(string path)
@@ -95,6 +116,9 @@ namespace PXColle.Master
             if (localStorage.Exists("WorkingPath"))
             {
                 SetWorkingPath(localStorage.Get("WorkingPath"));
+
+                ActionsToErrorTest();
+
                 return true;
             }
             else
@@ -114,28 +138,11 @@ namespace PXColle.Master
                 CheckAndCreate(Path.Combine(WorkingDirectory.FullName, configFolderName));
                 CheckAndCreate(Path.Combine(WorkingDirectory.FullName, dataFolderName));
                 Database = GetConfigLocalStorage(DatabaseFileName);
-                InitDb();
             }
             catch (Exception e)
             {
                 Console.WriteLine("The process failed: {0}", e.ToString());
             }
-        }
-
-        private void InitDb()
-        {
-            db = new LiteDatabase(Path.Combine(WorkingPath, configFolderName, DatabaseFileName + ".db"));
-            if (db.UserVersion == 0)
-            {
-                //foreach (var doc in db.Engine.Find("MyCol"))
-                //{
-                //    doc["NewCol"] = Convert.ToInt32(doc["OldCol"].AsString);
-                //    db.Engine.Update("MyCol", doc);
-                //}
-                //db.Engine.UserVersion = 1;
-            }
-            colAction = db.GetCollection<PXActionContext>("action");
-            colPXFile = db.GetCollection<PXManagedFile>("pxfile");
         }
 
         public void CheckAndCreate(string path)
@@ -219,7 +226,7 @@ namespace PXColle.Master
                     ActionContext = context,
                     Path = context.PolicyInfo.Path + "/" + file.Name
                 };
-                colPXFile.Insert(mfile);
+                SetPXFile(mfile);
                 file.MoveTo(Path.Combine(dest, file.Name));
             }
             directory.Delete();
