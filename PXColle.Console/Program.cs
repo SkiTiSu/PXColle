@@ -7,6 +7,7 @@ using PXColle.Trigger.RSS;
 using PXColle.Common;
 using PXColle.Trigger;
 using PXColle.Master;
+using System.Collections.Generic;
 
 namespace PXColle.Con
 {
@@ -77,6 +78,51 @@ namespace PXColle.Con
             //pm.TriggerM.Start("nb");
             //Console.Read();
 
+            var a = new PXNodeType
+            {
+                Key = "123",
+                Templates = new Dictionary<string, string>
+                {
+                    { "homepages", "url[]" },
+                    { "realname", "string" }
+                },
+                CreatedAt = new DateTimeOffset(2020, 5, 14,0,0,0, TimeSpan.Zero)
+            };
+            
+            var b = new PXNodeType
+            {
+                Key = "456",
+                Templates = new Dictionary<string, string>
+                {
+                    { "homepages", "url[]" },
+                    { "realname", "string" }
+                }
+            };
+
+            var aa = new List<PXNodeType>();
+            aa.Add(a);
+            aa.Add(b);
+
+            var url3 = new PXUrl
+            {
+                Id = "1-3",
+                Name = "https://www.instagram.com/mafumafu_ig",
+                Connects = new Dictionary<string, string>
+                {
+                    { "1", "prop.homepages" }
+                }
+            };
+
+            //var serializer = new YamlDotNet.Serialization.Serializer();
+            //serializer.Serialize(Console.Out, aa);
+
+            PXNode c = a;
+            PXNode d = new PXNode();
+
+            Console.WriteLine(c.Get());
+            Console.WriteLine(d.Get());
+
+            Console.ReadKey();
         }
 
 
